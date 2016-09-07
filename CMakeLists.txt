@@ -1,13 +1,15 @@
 cmake_minimum_required(VERSION 2.6)
 project(gpu)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
+
 find_package(OpenCL)
 find_package(OpenGL)
-find_package(GLUT)
+find_package(GLFW)
 find_package(GLEW)
 
 include_directories(
-	${GLUT_INCLUDE_DIR}
+	${GLFW_INCLUDE_DIR}
 	${OpenGL_INCLUDE_DIR}
 	${GLEW_INCLUDE_DIRS}
 	${OpenCL_INCLUDE_DIRS}
@@ -18,9 +20,7 @@ message("include directories:")
 get_directory_property(includes INCLUDE_DIRECTORIES)
 message("${includes}\n")
 
-message("${OpenCL_INCLUDE_DIRS}\n")
-
-add_definitions(-g -O3)
+add_definitions(-g)
 
 # convenient to have main in src/ folder, don't want to compile to lib though
 file(GLOB_RECURSE SOURCES src/*.cpp)
@@ -37,22 +37,21 @@ add_library(gpu_lib ${SOURCES})
 set(MAIN_EXEC gpu)
 add_executable(${MAIN_EXEC} ${MAIN_CPP})
 target_link_libraries(${MAIN_EXEC}
-	${gpu_lib}
-	${GLUT_LIBRARIES}
+	gpu_lib
+	${GLFW_LIBRARIES}
 	${OpenGL_LIBRARIES}
 	${GLEW_LIBRARY}
 	${OpenCL_LIBRARIES})
 
 file(GLOB TEST_SOURCES test/*.cpp)
 foreach(test_source ${TEST_SOURCES})
-	message(${test_source})
 	get_filename_component(test_name ${test_source} NAME_WE)
 	string(CONCAT test_name "test_" ${test_name})
-	message("${test_source} ${test_name}\n")
+	message("test script ${test_name}: ${test_source}\n")
 	add_executable(${test_name} ${test_source})
 	target_link_libraries(${test_name}
-		${gpu_lib}
-		${GLUT_LIBRARIES}
+		gpu_lib
+		${GLFW_LIBRARIES}
 		${OPENGL_LIBRARIES}
 		${GLEW_LIBRARY}
 		${OPENCL_LIBRARIES})
