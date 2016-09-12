@@ -9,11 +9,11 @@ find_package(GLFW)
 find_package(GLEW)
 
 include_directories(
+	${gpu_SOURCE_DIR}/inc
 	${GLFW_INCLUDE_DIR}
 	${OpenGL_INCLUDE_DIR}
 	${GLEW_INCLUDE_DIRS}
 	${OpenCL_INCLUDE_DIRS}
-	${gpu_SOURCE_DIR}/inc
 )
 
 message("include directories:")
@@ -24,7 +24,7 @@ add_definitions(-g)
 set(CMAKE_CXX_STANDARD 11)
 
 # convenient to have main in src/ folder, don't want to compile to lib though
-file(GLOB_RECURSE SOURCES src/*.cpp)
+file(GLOB_RECURSE SOURCES src/*.cpp src/*.c)
 file(GLOB MAIN_CPP src/main.cpp)
 list(REMOVE_ITEM SOURCES ${MAIN_CPP})
 

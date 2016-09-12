@@ -1,4 +1,7 @@
+#include "gpu/gl.hpp"
+
 #include "buffer.hpp"
+#include "program.hpp"
 
 StarBuffer::StarBuffer(GLProgram &prog, int count) :
 		count(count) {
@@ -28,7 +31,7 @@ StarBuffer::~StarBuffer() {
 	glDeleteBuffers(1, &this->vbo);
 }
 
-StarBuffer::draw() {
+void StarBuffer::draw() {
 	glBindVertexArray(this->vao);
 	glDrawArrays(GL_POINTS, 0, 1);
 }

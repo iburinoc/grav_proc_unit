@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "program.hpp"
+#include "gl_util.hpp"
 
 GLuint compile_shader(const std::string &src, GLenum type) {
 	GLuint shader = glCreateShader(type);
@@ -46,6 +47,10 @@ GLProgram::GLProgram(const std::string &vert_src,
 	if(this->fsh) {
 		glAttachShader(this->pid, this->fsh);
 	}
+
+	glLinkProgram(this->pid);
+
+	check_gl_error("linking program", 3500);
 }
 
 GLProgram::~GLProgram() {
@@ -54,7 +59,7 @@ GLProgram::~GLProgram() {
 	if(this->fsh) glDeleteShader(this->fsh);
 }
 
-GLuint program_id() {
+GLuint GLProgram::program_id() {
 	return this->pid;
 }
 

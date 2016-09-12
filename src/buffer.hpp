@@ -1,6 +1,8 @@
 #pragma once
 
-#include "gpu/gl.h"
+#include "gpu/gl.hpp"
+
+#include "program.hpp"
 
 class StarBuffer {
 	GLuint vao;
@@ -8,8 +10,8 @@ class StarBuffer {
 
 	int count;
 public:
-	StarBuffer(int count);
-	virtual ~StarBuffer()
+	StarBuffer(GLProgram &prog, int count);
+	virtual ~StarBuffer();
 
 	void draw();
 };

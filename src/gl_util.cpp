@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <stdexcept>
 
@@ -21,7 +22,7 @@ GLFWwindow *init_gl() {
 	glfwSetErrorCallback(error_callback);	
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
@@ -38,13 +39,17 @@ GLFWwindow *init_gl() {
 
 	glfwMakeContextCurrent(window);
 
+	gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+	check_gl_error("GLAD init", 9002);
+
 	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+	check_gl_error("Getting version", 9001);
+
 
 	glfwSwapInterval(1);
 
-	glewInit();
-
-	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+	glEnable(GL_PROGRAM_POINT_SIZE);
+	check_gl_error("Enabling vertex program size", 2000);
 
 	return window;
 }
@@ -52,5 +57,16 @@ GLFWwindow *init_gl() {
 void end_gl(GLFWwindow *window) {
 	glfwDestroyWindow(window);
 	glfwTerminate();
+}
+
+void check_gl_error(const char *err_str, int code) {
+	GLenum err = glGetError();
+
+	if(err == GL_NO_ERROR) return;
+
+	std::cerr << "ERROR: 0x" << std::setfill('0') << std::setw(4)
+		<< std::setbase(16) << err << "," << code << ": " << err_str
+		<< std::endl;
+	throw std::runtime_error("GL Error");
 }
 
