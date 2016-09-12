@@ -21,6 +21,7 @@ get_directory_property(includes INCLUDE_DIRECTORIES)
 message("${includes}\n")
 
 add_definitions(-g)
+set(CMAKE_CXX_STANDARD 11)
 
 # convenient to have main in src/ folder, don't want to compile to lib though
 file(GLOB_RECURSE SOURCES src/*.cpp)
@@ -33,14 +34,15 @@ message("sources:")
 message("${SOURCES}\n")
 
 add_library(gpu_lib ${SOURCES})
+target_compile_features(gpu_lib PRIVATE cxx_raw_string_literals)
 
 set(MAIN_EXEC gpu)
 add_executable(${MAIN_EXEC} ${MAIN_CPP})
 target_link_libraries(${MAIN_EXEC}
 	gpu_lib
-	${GLFW_LIBRARIES}
-	${OpenGL_LIBRARIES}
+	${OPENGL_LIBRARIES}
 	${GLEW_LIBRARY}
+	${GLFW_LIBRARIES}
 	${OpenCL_LIBRARIES})
 
 file(GLOB TEST_SOURCES test/*.cpp)
@@ -51,9 +53,9 @@ foreach(test_source ${TEST_SOURCES})
 	add_executable(${test_name} ${test_source})
 	target_link_libraries(${test_name}
 		gpu_lib
-		${GLFW_LIBRARIES}
 		${OPENGL_LIBRARIES}
 		${GLEW_LIBRARY}
-		${OPENCL_LIBRARIES})
+		${GLFW_LIBRARIES}
+		${OpenCL_LIBRARIES})
 endforeach(test_source ${TEST_SOURCES})
 

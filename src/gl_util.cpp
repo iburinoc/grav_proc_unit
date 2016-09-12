@@ -1,11 +1,14 @@
 #include <iostream>
+#include <vector>
+#include <stdexcept>
 
 #include "gpu/gl.hpp"
 
 #include "options.hpp"
+#include "gl_util.hpp"
 
 void error_callback(int error, const char *desc) {
-	std::cout << "Error: " << desc << std::endl;
+	std::cout << "GL Error: (" << error << ") " << desc << std::endl;
 }
 
 GLFWwindow *init_gl() {
@@ -16,6 +19,11 @@ GLFWwindow *init_gl() {
 	}
 
 	glfwSetErrorCallback(error_callback);	
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 	GLFWwindow *window = glfwCreateWindow(
 		options.dimensions.x,
@@ -30,7 +38,13 @@ GLFWwindow *init_gl() {
 
 	glfwMakeContextCurrent(window);
 
+	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+
+	glfwSwapInterval(1);
+
 	glewInit();
+
+	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
 	return window;
 }

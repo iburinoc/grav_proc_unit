@@ -5,6 +5,7 @@
 
 #include "gl_util.hpp"
 #include "options.hpp"
+#include "grav_proc_unit.hpp"
 
 int main(int argc, char **argv) {
 	process_args(argc, argv);
@@ -14,6 +15,9 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
+	GravProcUnit gpu(window);
+
+	gpu.main_loop();
 
 	end_gl(window);
 

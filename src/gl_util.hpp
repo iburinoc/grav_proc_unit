@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "gpu/gl.hpp"
 
 GLFWwindow *init_gl();
