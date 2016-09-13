@@ -31,10 +31,12 @@ GLuint compile_shader(const std::string &src, GLenum type) {
 }
 
 GLProgram::GLProgram(const std::string &vert_src,
-		const std::string &frag_src) : pid(0), vsh(0), fsh(0) {
-	this->vsh = compile_shader(vert_src, GL_VERTEX_SHADER);
+		const std::string &frag_src) : pid(0) {
+	GLuint vsh, fsh;
+
+	vsh = compile_shader(vert_src, GL_VERTEX_SHADER);
 	if(frag_src != "") {
-		this->fsh = compile_shader(frag_src, GL_FRAGMENT_SHADER);
+		fsh = compile_shader(frag_src, GL_FRAGMENT_SHADER);
 	}
 
 	this->pid = glCreateProgram();
@@ -43,20 +45,37 @@ GLProgram::GLProgram(const std::string &vert_src,
 		throw std::runtime_error("Failed to create program id");
 	}
 
-	glAttachShader(this->pid, this->vsh);
-	if(this->fsh) {
-		glAttachShader(this->pid, this->fsh);
+	glAttachShader(this->pid, vsh);
+	if(fsh) {
+		glAttachShader(this->pid, fsh);
 	}
 
+	glBindFragDataLocation(this->pid, 0, "colour");
 	glLinkProgram(this->pid);
+
+	GLint is_linked = 0;
+	glGetProgramiv(this->pid, GL_LINK_STATUS, &is_linked);
+	if(is_linked == GL_FALSE) {
+		GLint max_length = 0;
+		glGetProgramiv(this->pid, GL_INFO_LOG_LENGTH, &max_length);
+
+		std::vector<GLchar> errlog(max_length);
+		glGetProgramInfoLog(this->pid, max_length, &max_length, &errlog[0]);
+
+		std::cerr << "Link error:\n" << &errlog[0] << std::endl;
+		glDeleteShader(this->pid);
+		this->pid = 0;
+		throw std::runtime_error("Failed to link program");
+	}
+
+	if(vsh) glDeleteShader(vsh);
+	if(fsh) glDeleteShader(fsh);
 
 	check_gl_error("linking program", 3500);
 }
 
 GLProgram::~GLProgram() {
 	if(this->pid) glDeleteProgram(this->pid);
-	if(this->vsh) glDeleteShader(this->vsh);
-	if(this->fsh) glDeleteShader(this->fsh);
 }
 
 GLuint GLProgram::program_id() {

@@ -15,7 +15,7 @@ void error_callback(int error, const char *desc) {
 GLFWwindow *init_gl() {
 	if(!glfwInit()) {
 		// Failed to initialize
-		std::cerr << "Failed to initialize OpenGL" << std::endl;
+		std::cerr << "Failed to initialize GLFW" << std::endl;
 		return NULL;
 	}
 
@@ -49,7 +49,9 @@ GLFWwindow *init_gl() {
 	glfwSwapInterval(1);
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
-	check_gl_error("Enabling vertex program size", 2000);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	check_gl_error("Initializing settings", 2000);
 
 	return window;
 }
@@ -65,8 +67,8 @@ void check_gl_error(const char *err_str, int code) {
 	if(err == GL_NO_ERROR) return;
 
 	std::cerr << "ERROR: 0x" << std::setfill('0') << std::setw(4)
-		<< std::setbase(16) << err << "," << code << ": " << err_str
-		<< std::endl;
+		<< std::setbase(16) << err << "," << std::setbase(10) << code
+		<< ": " << err_str << std::endl;
 	throw std::runtime_error("GL Error");
 }
 

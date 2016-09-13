@@ -7,6 +7,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/normal.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 using glm::ivec2;
 using glm::vec3;
@@ -15,4 +16,5 @@ using glm::mat3;
 using glm::mat4;
 using glm::quat;
 using glm::value_ptr;
+using glm::length;
 

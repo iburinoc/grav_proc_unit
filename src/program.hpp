@@ -6,7 +6,6 @@
 
 class GLProgram {
 	GLuint pid;
-	GLuint vsh, fsh;
 public:
 	GLProgram(const std::string &vert_src,
 		const std::string &frag_src=std::string(""));

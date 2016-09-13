@@ -15,6 +15,8 @@ class GravProcUnit {
 
 	vec3 camera_pos;
 	quat camera_orient;
+
+	double current_time;
 public:
 	GravProcUnit(GLFWwindow* window);
 
@@ -24,6 +26,9 @@ public:
 	void resize_callback(int width, int height);
 
 private:
+	void update();
+	void update_camera(double dt);
+
 	void init_projection();
 	void render();
 
