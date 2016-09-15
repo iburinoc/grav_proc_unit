@@ -10,13 +10,22 @@ StarBuffer::StarBuffer(GLProgram &prog, int count) :
 	glBindVertexArray(this->vao);
 
 	glGenBuffers(1, &this->vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+	glGenBuffers(1, &this->ebo);
 
-	float data[] = {0.5, 0, 0, 100,
-	                0, 0, 0, 10,
-	                0, 0.5, 0, 2};
+	check_gl_error("Creating buffers", 3200);
+
+	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
+
+	float data[] = {0.5, 0, 0, 0.5,
+	                0, 0, 0, 0.4,
+	                0, 0.5, 0, 0.5};
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_DYNAMIC_DRAW);
+
+	GLubyte inds[] = {0, 1, 2, 0, 2, 3};
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(inds), inds,
+		GL_STATIC_DRAW);
 
 	GLint pos_loc = glGetAttribLocation(prog.program_id(), "position");
 	GLint size_loc = glGetAttribLocation(prog.program_id(), "size");
@@ -28,6 +37,9 @@ StarBuffer::StarBuffer(GLProgram &prog, int count) :
 		(GLvoid*) 0);
 	glVertexAttribPointer(size_loc, 1, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat),
 		(GLvoid*) (3*sizeof(GLfloat)));
+
+	glVertexAttribDivisor(pos_loc, 1);
+	glVertexAttribDivisor(size_loc, 1);
 
 	check_gl_error("Binding star buffer", 5005);
 
@@ -41,7 +53,9 @@ StarBuffer::~StarBuffer() {
 
 void StarBuffer::draw() {
 	glBindVertexArray(this->vao);
-	glDrawArrays(GL_POINTS, 0, 3);
+	//glDrawArrays(GL_POINTS, 0, 3);
+	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*) 0,
+		3);
 	check_gl_error("Drawing star buffer", 5006);
 
 	glBindVertexArray(0);

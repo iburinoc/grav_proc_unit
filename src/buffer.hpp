@@ -6,7 +6,7 @@
 
 class StarBuffer {
 	GLuint vao;
-	GLuint vbo;
+	GLuint vbo, ebo;
 
 	int count;
 public:

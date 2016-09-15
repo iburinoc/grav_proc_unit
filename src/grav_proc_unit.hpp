@@ -5,13 +5,16 @@
 
 #include "program.hpp"
 #include "buffer.hpp"
+#include "uniforms.hpp"
 
 class GravProcUnit {
 	GLFWwindow* window;
 	GLProgram prog;
 	StarBuffer buf;
+	Uniforms uniforms;
 
 	mat4 proj;
+	float pix_ratio;
 
 	vec3 camera_pos;
 	quat camera_orient;
@@ -32,7 +35,7 @@ private:
 	void init_projection();
 	void render();
 
-	GLint proj_loc, view_loc;
+	GLint view_loc, viewinv_loc;
 	void init_uniform_locations();
 	void bind_uniforms();
 };

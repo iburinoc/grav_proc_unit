@@ -34,7 +34,6 @@ message("sources:")
 message("${SOURCES}\n")
 
 add_library(gpu_lib ${SOURCES})
-target_compile_features(gpu_lib PRIVATE cxx_raw_string_literals)
 
 set(MAIN_EXEC gpu)
 add_executable(${MAIN_EXEC} ${MAIN_CPP})

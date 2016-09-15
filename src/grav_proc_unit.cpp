@@ -32,6 +32,7 @@ GravProcUnit::GravProcUnit(GLFWwindow* window) :
 		window(window),
 		prog(GLProgram(STAR_VERT_SHADER, STAR_FRAG_SHADER)),
 		buf(this->prog, 1),
+		uniforms(this->prog, {"proj", "view", }),
 		camera_pos(vec3(0, 0, -5)),
 		camera_orient(quat(1, 0, 0, 0)) {
 
@@ -40,7 +41,6 @@ GravProcUnit::GravProcUnit(GLFWwindow* window) :
 	glfwSetFramebufferSizeCallback(window, static_resize_callback);
 
 	this->init_projection();
-	this->init_uniform_locations();
 }
 
 void GravProcUnit::main_loop() {
@@ -81,8 +81,8 @@ void GravProcUnit::update_camera(double dt) {
 	if(CHECK_KEY(O)) om += vec3( 0,  0,  1);
 	if(CHECK_KEY(J)) om += vec3( 0,  1,  0);
 	if(CHECK_KEY(L)) om += vec3( 0, -1,  0);
-	if(CHECK_KEY(I)) om += vec3( 1,  0,  0);
-	if(CHECK_KEY(K)) om += vec3(-1,  0,  0);
+	if(CHECK_KEY(I)) om += vec3(-1,  0,  0);
+	if(CHECK_KEY(K)) om += vec3( 1,  0,  0);
 #undef CHECK_KEY
 
 	const float MOVE_SPEED = 5;
@@ -96,7 +96,9 @@ void GravProcUnit::update_camera(double dt) {
 	}
 
 	this->camera_pos += this->camera_orient * ds;
-	this->camera_orient = glm::normalize(rot * this->camera_orient);
+	this->camera_orient = glm::normalize(this->camera_orient * rot);
+
+	std::cout << glm::to_string(this->camera_pos) << "," << glm::to_string(this->camera_orient) << std::endl;
 }
 
 void GravProcUnit::init_projection() {
@@ -107,6 +109,8 @@ void GravProcUnit::init_projection() {
 	glViewport(0, 0, width, height);
 	this->proj = glm::infinitePerspective(90.f, width / float(height),
 			0.1f);
+
+	this->pix_ratio = 1.0 / width;
 }
 
 void GravProcUnit::render() {
@@ -119,37 +123,17 @@ void GravProcUnit::render() {
 	this->buf.draw();
 }
 
-void GravProcUnit::init_uniform_locations() {
-	GLint loc = glGetUniformLocation(this->prog.program_id(), "proj");
-	check_gl_error("Getting uniform location proj", 1000);
-	if(loc == -1) {
-		throw std::runtime_error("Failed to get uniform location proj");
-	}
-
-	this->proj_loc = loc;
-
-	loc = glGetUniformLocation(this->prog.program_id(), "view");
-	check_gl_error("Getting uniform location view", 1001);
-	if(loc == -1) {
-		throw std::runtime_error("Failed to get uniform location view");
-	}
-
-	this->view_loc = loc;
-}
-
 void GravProcUnit::bind_uniforms() {
-	glUniformMatrix4fv(this->proj_loc, 1, false, value_ptr(this->proj));
-
 	mat4 view(1.0f);
 
 	view = glm::translate(-camera_pos) * view;
 	view = glm::mat4_cast(glm::inverse(camera_orient)) * view;
 	view = glm::mat4_cast(glm::angleAxis((float)M_PI, vec3(0, 1, 0))) * view;
 
-	std::cout << glm::to_string(this->proj * view * vec4(0, 0, 0, 1))
-		<< std::endl;
-
 	glUniformMatrix4fv(this->view_loc, 1, false, value_ptr(view));
+
+	this->uniforms.set_uniform("proj", this->proj);
+	this->uniforms.set_uniform("view", view);
 }
 
 void GravProcUnit::key_callback(int key, int code, int action, int mods) {
