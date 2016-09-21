@@ -20,7 +20,7 @@ class GravProcUnit {
 	mat4 proj;
 	float pix_ratio;
 
-	vec3 camera_pos;
+	float distance;
 	quat camera_orient;
 
 	double current_time;

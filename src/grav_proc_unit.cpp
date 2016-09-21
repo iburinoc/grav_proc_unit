@@ -37,7 +37,7 @@ GravProcUnit::GravProcUnit(GLFWwindow* window, std::unique_ptr<Backend> bk) :
 		buf(this->prog, 1),
 		backend(std::move(bk)),
 		uniforms(this->prog, {"proj", "view", }),
-		camera_pos(vec3(0, 0, -5)),
+		distance(5.f),
 		camera_orient(quat(1, 0, 0, 0)) {
 
 	callback_map[window] = this;
@@ -70,44 +70,34 @@ void GravProcUnit::update() {
 }
 
 void GravProcUnit::update_camera(double dt) {
-	vec3 ds = vec3(0, 0, 0);
+	float dd = 0.f;
 	vec3 om = vec3(0, 0, 0);
 
 #define CHECK_KEY(x) (glfwGetKey(this->window, GLFW_KEY_ ## x) == GLFW_PRESS)
-	if(CHECK_KEY(Q)) ds += vec3( 0,  0, -1);
-	if(CHECK_KEY(E)) ds += vec3( 0,  0,  1);
-	if(CHECK_KEY(S)) ds += vec3( 0, -1,  0);
-	if(CHECK_KEY(W)) ds += vec3( 0,  1,  0);
-	if(CHECK_KEY(A)) ds += vec3( 1,  0,  0);
-	if(CHECK_KEY(D)) ds += vec3(-1,  0,  0);
+	if(CHECK_KEY(Q)) dd +=  1;
+	if(CHECK_KEY(E)) dd += -1;
 
-	if(dot(ds, ds) > 1e-9) ds /= length(ds);
-
-	if(CHECK_KEY(U)) om += vec3( 0,  0, -1);
-	if(CHECK_KEY(O)) om += vec3( 0,  0,  1);
-	if(CHECK_KEY(J)) om += vec3( 0,  1,  0);
-	if(CHECK_KEY(L)) om += vec3( 0, -1,  0);
-	if(CHECK_KEY(I)) om += vec3(-1,  0,  0);
-	if(CHECK_KEY(K)) om += vec3( 1,  0,  0);
+	if(CHECK_KEY(U)) om += vec3( 0,  0,  1);
+	if(CHECK_KEY(O)) om += vec3( 0,  0, -1);
+	if(CHECK_KEY(J)) om += vec3( 0, -1,  0);
+	if(CHECK_KEY(L)) om += vec3( 0,  1,  0);
+	if(CHECK_KEY(I)) om += vec3( 1,  0,  0);
+	if(CHECK_KEY(K)) om += vec3(-1,  0,  0);
 #undef CHECK_KEY
 
-	const float MOVE_SPEED = 5;
+	const float MOVE_SPEED = 3;
 	const float ROT_SPEED = 1;
 
-	ds *= MOVE_SPEED * dt;
+	dd *= MOVE_SPEED * dt;
 
 	quat rot(1, 0, 0, 0);
 	if(dot(om, om) > 1e-9) {
 		rot = glm::angleAxis((float) (ROT_SPEED * dt), om);
 	}
 
-	this->camera_pos += this->camera_orient * ds;
+	this->distance += dd;
+	this->distance = std::max(this->distance, 0.f);
 	this->camera_orient = glm::normalize(this->camera_orient * rot);
-
-	DEBUG(std::cout << glm::to_string(this->camera_pos)
-	                << ","
-			<< glm::to_string(this->camera_orient)
-			<< std::endl);
 }
 
 void GravProcUnit::init_projection() {
@@ -135,8 +125,8 @@ void GravProcUnit::render() {
 void GravProcUnit::bind_uniforms() {
 	mat4 view(1.0f);
 
-	view = glm::translate(-camera_pos) * view;
 	view = glm::mat4_cast(glm::inverse(camera_orient)) * view;
+	view = glm::translate(vec3(0, 0, distance)) * view;
 	view = glm::mat4_cast(glm::angleAxis((float)M_PI, vec3(0, 1, 0))) * view;
 
 	glUniformMatrix4fv(this->view_loc, 1, false, value_ptr(view));
