@@ -4,6 +4,10 @@
 
 struct Options {
 	ivec2 dimensions;
+
+	int particle_count;
+	uint64_t seed;
+
 	bool debug;
 };
 

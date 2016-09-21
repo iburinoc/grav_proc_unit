@@ -49,8 +49,7 @@ GLFWwindow *init_gl() {
 	glfwSwapInterval(1);
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_BLEND);
 	check_gl_error("Initializing settings", 2000);
 
 	return window;

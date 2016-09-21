@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <stdint.h>
 #include <unistd.h>
 
@@ -6,6 +8,7 @@
 #include "gl_util.hpp"
 #include "options.hpp"
 #include "grav_proc_unit.hpp"
+#include "backend.hpp"
 
 int main(int argc, char **argv) {
 	process_args(argc, argv);
@@ -15,7 +18,8 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	GravProcUnit gpu(window);
+	auto backend = get_backend_from_opts();
+	GravProcUnit gpu(window, std::move(backend));
 
 	gpu.main_loop();
 

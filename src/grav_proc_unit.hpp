@@ -1,16 +1,20 @@
 #pragma once
 
+#include <memory>
+
 #include "gpu/gl.hpp"
 #include "gpu/glm.hpp"
 
 #include "program.hpp"
 #include "buffer.hpp"
+#include "backend.hpp"
 #include "uniforms.hpp"
 
 class GravProcUnit {
 	GLFWwindow* window;
 	GLProgram prog;
 	StarBuffer buf;
+	std::unique_ptr<Backend> backend;
 	Uniforms uniforms;
 
 	mat4 proj;
@@ -21,7 +25,7 @@ class GravProcUnit {
 
 	double current_time;
 public:
-	GravProcUnit(GLFWwindow* window);
+	GravProcUnit(GLFWwindow* window, std::unique_ptr<Backend> backend);
 
 	void main_loop();
 

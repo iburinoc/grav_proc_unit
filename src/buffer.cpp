@@ -1,4 +1,7 @@
+#include <vector>
+
 #include "gpu/gl.hpp"
+#include "gpu/glm.hpp"
 
 #include "buffer.hpp"
 #include "program.hpp"
@@ -49,13 +52,25 @@ StarBuffer::StarBuffer(GLProgram &prog, int count) :
 StarBuffer::~StarBuffer() {
 	glDeleteVertexArrays(1, &this->vao);
 	glDeleteBuffers(1, &this->vbo);
+	glDeleteBuffers(1, &this->ebo);
+}
+
+// Take position and size data as vec4's to ensure the array is packed
+void StarBuffer::set_vertices(std::vector<vec4> &data) {
+	glBindVertexArray(this->vao);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vec4) * data.size(), &data[0],
+		GL_DYNAMIC_DRAW);
+	this->count = data.size();
+
+	glBindVertexArray(0);
 }
 
 void StarBuffer::draw() {
 	glBindVertexArray(this->vao);
 	//glDrawArrays(GL_POINTS, 0, 3);
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*) 0,
-		3);
+		this->count);
 	check_gl_error("Drawing star buffer", 5006);
 
 	glBindVertexArray(0);

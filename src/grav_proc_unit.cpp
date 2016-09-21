@@ -1,6 +1,7 @@
 #include <unordered_map>
 #include <stdexcept>
 #include <iostream>
+#include <memory>
 
 #include "gpu/gl.hpp"
 #include "gpu/glm.hpp"
@@ -9,6 +10,8 @@
 #include "program.hpp"
 #include "shaders.hpp"
 #include "gl_util.hpp"
+#include "log.hpp"
+#include "backend.hpp"
 
 static std::unordered_map<GLFWwindow *, GravProcUnit *> callback_map;
 
@@ -28,10 +31,11 @@ static void static_resize_callback(GLFWwindow *window, int width, int height) {
 }
 
 
-GravProcUnit::GravProcUnit(GLFWwindow* window) :
+GravProcUnit::GravProcUnit(GLFWwindow* window, std::unique_ptr<Backend> bk) :
 		window(window),
 		prog(GLProgram(STAR_VERT_SHADER, STAR_FRAG_SHADER)),
 		buf(this->prog, 1),
+		backend(std::move(bk)),
 		uniforms(this->prog, {"proj", "view", }),
 		camera_pos(vec3(0, 0, -5)),
 		camera_orient(quat(1, 0, 0, 0)) {
@@ -40,13 +44,14 @@ GravProcUnit::GravProcUnit(GLFWwindow* window) :
 	glfwSetKeyCallback(window, static_key_callback);
 	glfwSetFramebufferSizeCallback(window, static_resize_callback);
 
+	this->backend->set_buffer(&this->buf);
+
 	this->init_projection();
 }
 
 void GravProcUnit::main_loop() {
 	while(!glfwWindowShouldClose(window)) {
 		this->update();
-		// this->backend->update
 		this->render();
 
 		glfwSwapBuffers(window);
@@ -61,6 +66,7 @@ void GravProcUnit::update() {
 	double dt = this->current_time - prev_time;
 
 	this->update_camera(dt);
+	this->backend->update(dt);
 }
 
 void GravProcUnit::update_camera(double dt) {
@@ -98,7 +104,10 @@ void GravProcUnit::update_camera(double dt) {
 	this->camera_pos += this->camera_orient * ds;
 	this->camera_orient = glm::normalize(this->camera_orient * rot);
 
-	std::cout << glm::to_string(this->camera_pos) << "," << glm::to_string(this->camera_orient) << std::endl;
+	DEBUG(std::cout << glm::to_string(this->camera_pos)
+	                << ","
+			<< glm::to_string(this->camera_orient)
+			<< std::endl);
 }
 
 void GravProcUnit::init_projection() {
@@ -107,8 +116,8 @@ void GravProcUnit::init_projection() {
 	glfwGetFramebufferSize(window, &width, &height);
 
 	glViewport(0, 0, width, height);
-	this->proj = glm::infinitePerspective(90.f, width / float(height),
-			0.1f);
+	this->proj = glm::perspective(45.f, width / float(height),
+			0.01f, 100.0f);
 
 	this->pix_ratio = 1.0 / width;
 }
@@ -116,7 +125,7 @@ void GravProcUnit::init_projection() {
 void GravProcUnit::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glClearColor(1.0f, 0.5f, 0.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	this->prog.bind();
 	this->bind_uniforms();

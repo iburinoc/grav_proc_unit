@@ -21,7 +21,7 @@ get_directory_property(includes INCLUDE_DIRECTORIES)
 message("${includes}\n")
 
 add_definitions(-g)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 # convenient to have main in src/ folder, don't want to compile to lib though
 file(GLOB_RECURSE SOURCES src/*.cpp src/*.c)
