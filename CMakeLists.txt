@@ -20,7 +20,7 @@ message("include directories:")
 get_directory_property(includes INCLUDE_DIRECTORIES)
 message("${includes}\n")
 
-add_definitions(-g)
+add_definitions(-g -O3)
 set(CMAKE_CXX_STANDARD 14)
 
 # convenient to have main in src/ folder, don't want to compile to lib though
