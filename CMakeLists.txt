@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 project(gpu)
 
+set(CMAKE_VERBOSE_MAKEFILE on)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 find_package(OpenCL)
@@ -20,7 +22,7 @@ message("include directories:")
 get_directory_property(includes INCLUDE_DIRECTORIES)
 message("${includes}\n")
 
-add_definitions(-g -O3)
+add_definitions(-g)
 set(CMAKE_CXX_STANDARD 14)
 
 # convenient to have main in src/ folder, don't want to compile to lib though

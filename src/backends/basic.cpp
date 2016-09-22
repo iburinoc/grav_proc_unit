@@ -1,3 +1,7 @@
+#include <iostream>
+
+#include "../log.hpp"
+
 #include "../backend.hpp"
 #include "../gen_rand.hpp"
 #include "../options.hpp"
@@ -15,14 +19,14 @@ BasicBackend::BasicBackend(int count) : Backend(count),
 		aa(this->count) {
 	RealRNG rng(options.seed, -1.0f, 1.0f);
 
-	this->pos[0] = vec4(0, 0, 0, 0.5f);
-	this->vel[0] = vec3(0, 0, -.05f);
+	//this->pos[0] = vec4(0, 0, 0, 0.5f);
+	//this->vel[0] = vec3(0, 0, -.25f);
 
-	this->pos[1] = vec4(0, 1, 0, 0.5f);
-	this->vel[1] = vec3(0, 0, 0.05f);
+	//this->pos[1] = vec4(0, 1, 0, 0.5f);
+	//this->vel[1] = vec3(0, 0, 0.25f);
 
-	for(int i = 2; i < this->count; i++) {
-		this->pos[i] = vec4(rand_sphere(rng), 0.005f);
+	for(int i = 0; i < this->count; i++) {
+		this->pos[i] = vec4(rand_sphere(rng), 0.1f);
 		this->vel[i] = glm::normalize(glm::cross(vec3(this->pos[i]), rand_sphere(rng))) * 0.25f;
 	}
 }
@@ -46,7 +50,7 @@ void BasicBackend::update(float dt) {
 		this->x2[i] = this->pos[i] + vec4(.5f * dt * this->vel[i], .0f);
 		this->v2[i] = this->vel[i] + .5f * dt * acc;
 
-		this->aa[i] += acc;
+		this->aa[i] = acc;
 	}
 	for(int i = 0; i < this->count; i++) {
 		vec3 acc = vec3(0, 0, 0);
@@ -83,7 +87,8 @@ void BasicBackend::update(float dt) {
 			 2.f * this->v3[i] +
 			 this->v4[i]), 0.f);
 
-		this->vel[i] += dt / 6.f * (this->aa[i] + acc); 
+		vec3 net_acc = (this->aa[i] + acc) / 6.f;
+		this->vel[i] += dt * net_acc;
 	}
 	this->sb->set_vertices(this->pos);
 }
