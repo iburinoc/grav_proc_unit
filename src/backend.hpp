@@ -22,6 +22,8 @@ public:
 class BasicBackend : public Backend {
 	std::vector<vec4> pos;
 	std::vector<vec3> vel;
+	std::vector<float> m;
+	std::vector<bool> active;
 
 	std::vector<vec4> x2;
 	std::vector<vec4> x3;

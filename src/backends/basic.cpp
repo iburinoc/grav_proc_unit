@@ -10,6 +10,8 @@
 BasicBackend::BasicBackend(int count) : Backend(count),
 		pos(this->count),
 		vel(this->count),
+		m(this->count),
+		active(this->count),
 		x2(this->count),
 		x3(this->count),
 		x4(this->count),
@@ -28,6 +30,8 @@ BasicBackend::BasicBackend(int count) : Backend(count),
 	for(int i = 0; i < this->count; i++) {
 		this->pos[i] = vec4(rand_sphere(rng), 0.1f);
 		this->vel[i] = glm::normalize(glm::cross(vec3(this->pos[i]), rand_sphere(rng))) * 0.25f;
+		this->m[i] = 0.25f*0.25f*0.25f;
+		this->active[i] = true;
 	}
 }
 
@@ -42,8 +46,10 @@ static vec3 grav_force(vec4 o1, vec4 o2) {
 
 void BasicBackend::update(float dt) {
 	for(int i = 0; i < this->count; i++) {
+		if(!this->active[i]) continue;
 		vec3 acc = vec3(0, 0, 0);
 		for(int j = 0; j < this->count; j++) {
+			if(!this->active[j]) continue;
 			if(i == j) continue;
 			acc += grav_force(this->pos[i], this->pos[j]);
 		}
@@ -53,8 +59,10 @@ void BasicBackend::update(float dt) {
 		this->aa[i] = acc;
 	}
 	for(int i = 0; i < this->count; i++) {
+		if(!this->active[i]) continue;
 		vec3 acc = vec3(0, 0, 0);
 		for(int j = 0; j < this->count; j++) {
+			if(!this->active[j]) continue;
 			if(i == j) continue;
 			acc += grav_force(this->x2[i], this->x2[j]);
 		}
@@ -64,8 +72,10 @@ void BasicBackend::update(float dt) {
 		this->aa[i] += 2.0f*acc;
 	}
 	for(int i = 0; i < this->count; i++) {
+		if(!this->active[i]) continue;
 		vec3 acc = vec3(0, 0, 0);
 		for(int j = 0; j < this->count; j++) {
+			if(!this->active[j]) continue;
 			if(i == j) continue;
 			acc += grav_force(this->x3[i], this->x3[j]);
 		}
@@ -75,8 +85,10 @@ void BasicBackend::update(float dt) {
 		this->aa[i] += 2.0f*acc;
 	}
 	for(int i = 0; i < this->count; i++) {
+		if(!this->active[i]) continue;
 		vec3 acc = vec3(0, 0, 0);
 		for(int j = 0; j < this->count; j++) {
+			if(!this->active[j]) continue;
 			if(i == j) continue;
 			acc += grav_force(this->x4[i], this->x4[j]);
 		}

@@ -50,6 +50,7 @@ GravProcUnit::GravProcUnit(GLFWwindow* window, std::unique_ptr<Backend> bk) :
 }
 
 void GravProcUnit::main_loop() {
+	this->current_time = glfwGetTime();
 	while(!glfwWindowShouldClose(window)) {
 		this->update();
 		this->render();
@@ -64,6 +65,8 @@ void GravProcUnit::update() {
 	this->current_time = glfwGetTime();
 
 	double dt = this->current_time - prev_time;
+	// avoid getting large dt on frame skips
+	dt = std::min(dt, 1/(double) 30);
 
 	this->update_camera(dt);
 	this->backend->update(dt);
@@ -85,8 +88,8 @@ void GravProcUnit::update_camera(double dt) {
 	if(CHECK_KEY(K)) om += vec3(-1,  0,  0);
 #undef CHECK_KEY
 
-	const float MOVE_SPEED = 3;
-	const float ROT_SPEED = 1;
+	const float MOVE_SPEED = 10;
+	const float ROT_SPEED = 0.5;
 
 	dd *= MOVE_SPEED * dt;
 
@@ -107,7 +110,7 @@ void GravProcUnit::init_projection() {
 
 	glViewport(0, 0, width, height);
 	this->proj = glm::perspective(45.f, width / float(height),
-			0.01f, 100.0f);
+			0.01f, 500.0f);
 
 	this->pix_ratio = 1.0 / width;
 }
