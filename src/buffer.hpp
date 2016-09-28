@@ -9,14 +9,14 @@
 
 class StarBuffer {
 	GLuint vao;
-	GLuint vbo, ebo;
+	GLuint pvbo, svbo, ebo;
 
 	int count;
 public:
 	StarBuffer(GLProgram &prog, int count);
 	virtual ~StarBuffer();
 
-	void set_vertices(std::vector<vec4> &data);
+	void set_vertices(std::vector<vec3> &data, std::vector<GLfloat> &size);
 
 	void draw();
 };
