@@ -43,6 +43,7 @@ StarBuffer::StarBuffer(GLProgram &prog, int count) :
 
 	check_gl_error("Binding star buffer", 5005);
 
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 
@@ -70,6 +71,7 @@ void StarBuffer::set_vertices(std::vector<vec3> &pos,
 
 	check_gl_error("Loading data", 5007);
 
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 

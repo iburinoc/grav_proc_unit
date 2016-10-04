@@ -11,6 +11,7 @@ find_package(GLFW)
 find_package(GLEW)
 
 include_directories(
+	${gpu_SOURCE_DIR}/src
 	${gpu_SOURCE_DIR}/inc
 	${GLFW_INCLUDE_DIR}
 	${OpenGL_INCLUDE_DIR}
