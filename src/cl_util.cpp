@@ -1,72 +1,38 @@
-#include <string>
 #include <iostream>
-#include <vector>
-#include <exception>
+#include <utility>
 
-#include "opencl/opencl.h"
+#include "gpu/cl.hpp"
 
 #include "cl_util.hpp"
 
-static std::string get_platform_property(cl_platform_id pid,
-		cl_platform_info param_name) {
-	cl_int status;
+using namespace compute;
 
-	size_t size;
-	status = clGetPlatformInfo(pid, param_name,
-		0, nullptr, &size);
-
-	std::string s;
-	s.resize(size);
-
-	status = clGetPlatformInfo(pid, param_name, size, &s[0], nullptr);
-
-	return s;
+// Call after OpenGL context has been created
+context get_glcl_context() {
+	return opengl_create_shared_context();
 }
 
-static bool gl_sharing_capable(cl_platform_id pid) {
-	std::string exts = get_platform_property(pid, CL_PLATFORM_EXTENSIONS);
+std::pair<context, command_queue> init_cl() {
+	context ctx = get_glcl_context();
 
-#ifdef __APPLE__
-	const std::string target = "cl_APPLE_gl_sharing";
-#else
-	const std::string target = "cl_khr_gl_sharing";
-#endif
+	std::cerr << "OpenCL Version: " << 
+		ctx.get_device().get_info<CL_DEVICE_VERSION>() << std::endl;
 
-	return exts.find(target) != std::string::npos;
+	command_queue q(ctx, ctx.get_device());
+
+	return std::make_pair(std::move(ctx), std::move(q));
 }
 
-cl_platform_id get_platform() {
-	cl_int status;
+kernel create_kernel(const std::string &src, const context &ctx) {
+	program prg = program::create_with_source(src, ctx);
 
-	cl_uint num_platforms;
-	status = clGetPlatformIDs(0, nullptr, &num_platforms);
-
-	std::vector<cl_platform_id> platforms(num_platforms);
-	status = clGetPlatformIDs(num_platforms, &platforms[0], nullptr);
-
-	cl_platform_id pid;
-
-	cl_uint i;
-	for(i = 0; i < num_platforms; i++) {
-		// check for extension
-		if(gl_sharing_capable(platforms[i])) {
-			pid = platforms[i];
-			break;
-		}
+	try {
+		prg.build();
+	} catch(const opencl_error &e) {
+		std::cerr << prg.build_log() << std::endl;
+		throw;
 	}
 
-	if(i == num_platforms) {
-		throw new std::runtime_error("No suitable OpenCL platforms");
-	}
-
-	std::cerr << get_platform_property(pid, CL_PLATFORM_VERSION)
-		<< std::endl;
-
-	return pid;
-}
-
-void init_opencl() {
-	cl_platform_id pid = get_platform();
-
+	return prg.create_kernel("kern");
 }
 

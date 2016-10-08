@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 project(gpu)
 
-set(CMAKE_VERBOSE_MAKEFILE on)
+#set(CMAKE_VERBOSE_MAKEFILE on)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 
@@ -13,6 +13,7 @@ find_package(GLEW)
 include_directories(
 	${gpu_SOURCE_DIR}/src
 	${gpu_SOURCE_DIR}/inc
+	${gpu_SOURCE_DIR}/test
 	${GLFW_INCLUDE_DIR}
 	${OpenGL_INCLUDE_DIR}
 	${GLEW_INCLUDE_DIRS}

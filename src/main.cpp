@@ -9,6 +9,7 @@
 #include "options.hpp"
 #include "grav_proc_unit.hpp"
 #include "backend.hpp"
+#include "cl_util.hpp"
 
 int main(int argc, char **argv) {
 	process_args(argc, argv);
@@ -19,6 +20,9 @@ int main(int argc, char **argv) {
 	}
 
 	auto backend = get_backend_from_opts();
+
+	compute::context ctx = get_glcl_context();
+
 	GravProcUnit gpu(window, std::move(backend));
 
 	gpu.main_loop();
