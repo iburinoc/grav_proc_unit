@@ -4,8 +4,7 @@
 
 #include <boost/compute/core.hpp>
 #include <boost/compute/exception/opencl_error.hpp>
-#include <boost/compute/interop/opengl/context.hpp>
-#include <boost/compute/interop/opengl/opengl_buffer.hpp>
+#include <boost/compute/interop/opengl.hpp>
 
 namespace compute = boost::compute;
 
