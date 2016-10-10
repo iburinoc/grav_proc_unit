@@ -23,9 +23,8 @@ std::pair<context, command_queue> init_cl() {
 	return std::make_pair(std::move(ctx), std::move(q));
 }
 
-kernel create_kernel(const std::string &src, const context &ctx) {
+program create_program(const std::string &src, const context &ctx) {
 	program prg = program::create_with_source(src, ctx);
-
 	try {
 		prg.build();
 	} catch(const opencl_error &e) {
@@ -33,6 +32,6 @@ kernel create_kernel(const std::string &src, const context &ctx) {
 		throw;
 	}
 
-	return prg.create_kernel("kern");
+	return prg;
 }
 

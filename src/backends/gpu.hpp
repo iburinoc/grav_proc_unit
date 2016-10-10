@@ -8,7 +8,8 @@ class GPUBackend : public Backend {
 	compute::context ctx;
 	compute::command_queue cmd_q;
 
-	compute::kernel kern;
+	compute::kernel gr_step_kern;
+	compute::kernel gr_end_kern;
 
 	compute::opengl_buffer pos;
 	compute::opengl_buffer size;
@@ -25,7 +26,7 @@ class GPUBackend : public Backend {
 	compute::buffer va;
 	compute::buffer aa;
 
-	void init();
+	void init_buffers();
 
 public:
 	GPUBackend(int count);

@@ -1,5 +1,7 @@
 #include <tuple>
 
+#include "gpu/gl.hpp"
+
 #include "gpu.hpp"
 
 #include "../cl_util.hpp"
@@ -10,12 +12,15 @@ using namespace compute;
 GPUBackend::GPUBackend(int count) : Backend(count) {
 	std::tie(this->ctx, this->cmd_q) = init_cl();
 
-	this->kern = create_kernel(GRAV_RK4_SRC, this->ctx);
+	auto prog = create_program(GRAV_RK4_SRC, this->ctx);
+
+	this->gr_step_kern = prog.create_kernel("gr_step");
+	this->gr_end_kern = prog.create_kernel("gr_end");
 }
 
 GPUBackend::~GPUBackend() {}
 
-void GPUBackend::init() {
+void GPUBackend::init_buffers() {
 	this->pos = opengl_buffer(ctx, sb->get_pvbo());
 	this->size = opengl_buffer(ctx, sb->get_svbo());
 
@@ -50,10 +55,18 @@ void GPUBackend::set_buffer(StarBuffer *sb) {
 		NULL,
 		GL_DYNAMIC_DRAW);
 
-	this->init();
+	this->init_buffers();
 }
 
 void GPUBackend::update(float dt) {
-	/* do shit */
+	opengl_enqueue_acquire_buffer(this->pos, this->cmd_q);
+	opengl_enqueue_acquire_buffer(this->size, this->cmd_q);
+
+	vec3 empty(0.0f, 0.0f, 0.0f);
+
+	this->cmd_q.enqueue_fill_buffer(this->va, value_ptr(empty))
+
+	opengl_enqueue_release_buffer(this->pos, this->cmd_q);
+	opengl_enqueue_release_buffer(this->size, this->cmd_q);
 }
 

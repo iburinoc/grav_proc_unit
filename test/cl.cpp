@@ -26,7 +26,8 @@ int main(int argc, char **argv) {
 	auto ctx = tmp.first;
 	auto cmd_q = tmp.second;
 
-	auto kern = create_kernel(kern_src, ctx);
+	auto prog = create_program(kern_src, ctx);
+	auto kern = prog.create_kernel("kern");
 
 	for(int i = 0; i < 65536; i++) {
 		d1[i] = (float)i;
