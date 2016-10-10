@@ -13,6 +13,6 @@ void Backend::set_buffer(StarBuffer *sb) {
 }
 
 std::unique_ptr<Backend> get_backend_from_opts() {
-	return std::make_unique<BasicBackend>(options.particle_count);
+	return std::make_unique<GPUBackend>(options.particle_count);
 }
 

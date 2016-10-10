@@ -85,3 +85,11 @@ void StarBuffer::draw() {
 	glBindVertexArray(0);
 }
 
+GLuint StarBuffer::get_pvbo() const {
+	return this->pvbo;
+}
+
+GLuint StarBuffer::get_svbo() const {
+	return this->svbo;
+}
+

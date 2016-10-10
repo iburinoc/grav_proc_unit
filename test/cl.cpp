@@ -47,12 +47,19 @@ int main(int argc, char **argv) {
 
 	cmd_q.enqueue_1d_range_kernel(kern, 0, 65536, 32);
 
-	cmd_q.enqueue_read_buffer(b3, 0, sizeof(d3), d3);
+	kern.set_arg(0, b3);
+	kern.set_arg(1, b2);
+	kern.set_arg(2, b1);
+	kern.set_arg(3, 65536);
+
+	cmd_q.enqueue_1d_range_kernel(kern, 0, 65536, 32);
+
+	cmd_q.enqueue_read_buffer(b1, 0, sizeof(d3), d3);
 
 	cmd_q.flush();
 
 	for(int i = 0; i < 65536; i++) {
-		if(!equal(d1[i] + d2[i], d3[i])) {
+		if(!equal(d1[i] + d2[i] + d2[i], d3[i])) {
 			std::cerr << i << " " << d3[i] << std::endl;
 		}
 	}

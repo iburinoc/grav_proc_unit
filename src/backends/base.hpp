@@ -13,7 +13,7 @@ protected:
 public:
 	virtual ~Backend();
 
-	void set_buffer(StarBuffer *sb);
+	virtual void set_buffer(StarBuffer *sb);
 	virtual void update(float dt) = 0;
 };
 

@@ -19,5 +19,8 @@ public:
 	void set_vertices(std::vector<vec3> &data, std::vector<GLfloat> &size);
 
 	void draw();
+
+	GLuint get_pvbo() const;
+	GLuint get_svbo() const;
 };
 
