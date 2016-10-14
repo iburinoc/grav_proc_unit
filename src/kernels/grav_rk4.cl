@@ -55,8 +55,8 @@ __kernel void gr_end(
 		const float dt,
 		__global const bool *active,
 
-		__global const float *va,
-		__global const float *aa,
+		__global const float3 *va,
+		__global const float3 *aa,
 
 		__global float3 *pos,
 		__global float3 *vel
