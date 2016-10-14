@@ -7,13 +7,17 @@
 #include "gpu/glm.hpp"
 
 class RealRNG {
-	std::uniform_real_distribution<float> dist;
 	std::mt19937_64 gen;
 
 public:
-	RealRNG(uint64_t seed, float min_val=0.0f, float max_val=1.0f);
+	RealRNG();
+	RealRNG(uint64_t seed);
+	float operator()(float min_val, float max_val);
+	float operator()(float max_val);
 	float operator()();
+
+	friend vec3 rand_sphere(RealRNG &rng);
 };
 
-vec3 rand_sphere(RealRNG &rng);
+//vec3 rand_sphere(RealRNG &rng);
 

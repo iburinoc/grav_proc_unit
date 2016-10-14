@@ -1,16 +1,21 @@
 #pragma once
 
+#include <memory>
+
 #include "gpu/gl.hpp"
+
+#include "../particle_gen.hpp"
 
 class Backend {
 protected:
 	GLuint pvbo, svbo;
         int count;
+	std::unique_ptr<ParticleGen> p_gen;
 	size_t stride;
 
 	virtual void init();
 
-	Backend(int count, size_t stride);
+	Backend(int count, std::unique_ptr<ParticleGen> p_gen, size_t stride);
 
 public:
 	virtual ~Backend();

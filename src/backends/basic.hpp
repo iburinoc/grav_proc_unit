@@ -21,7 +21,7 @@ class BasicBackend : public Backend {
 	std::vector<vec3> v4;
 	std::vector<vec3> aa;
 public:
-	BasicBackend(int count);
+	BasicBackend(int count, std::unique_ptr<ParticleGen> p_gen);
 	virtual ~BasicBackend();
 
 	virtual void update(float dt);

@@ -11,7 +11,8 @@
 
 #include "basic.hpp"
 
-BasicBackend::BasicBackend(int count) : Backend(count, sizeof(vec3)),
+BasicBackend::BasicBackend(int count, std::unique_ptr<ParticleGen> p_gen) :
+		Backend(count, std::move(p_gen), sizeof(vec3)),
 		pos(this->count),
 		vel(this->count),
 		size(this->count),
@@ -24,7 +25,7 @@ BasicBackend::BasicBackend(int count) : Backend(count, sizeof(vec3)),
 		v3(this->count),
 		v4(this->count),
 		aa(this->count) {
-	RealRNG rng(options.seed, -1.0f, 1.0f);
+	RealRNG rng(options.seed);
 
 	//this->pos[0] = vec4(0, 0, 0, 0.5f);
 	//this->vel[0] = vec3(0, 0, -.25f);
@@ -34,7 +35,7 @@ BasicBackend::BasicBackend(int count) : Backend(count, sizeof(vec3)),
 
 	for(int i = 0; i < this->count; i++) {
 		this->pos[i] = rand_sphere(rng);
-		this->size[i] = 0.1f;
+		this->size[i] = 0.05f;
 		this->vel[i] = glm::normalize(glm::cross(this->pos[i], rand_sphere(rng))) * 0.25f;
 		this->m[i] = 0.25f*0.25f*0.25f;
 		this->active[i] = true;

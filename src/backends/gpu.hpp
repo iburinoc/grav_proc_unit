@@ -15,7 +15,7 @@ class GPUBackend : public Backend {
 	compute::opengl_buffer size;
 
 	compute::buffer vel;
-	compute::buffer m;
+	compute::buffer mass;
 	compute::buffer active;
 
 	compute::buffer x0;
@@ -36,7 +36,7 @@ class GPUBackend : public Backend {
 	void rk_end(float dt);
 
 public:
-	GPUBackend(int count);
+	GPUBackend(int count, std::unique_ptr<ParticleGen> p_gen);
 	virtual ~GPUBackend();
 
 	virtual void update(float dt);

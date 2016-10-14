@@ -4,7 +4,7 @@ __constant const float G = 6.67408e-11f * 1e10f;
 __constant const float Geps = 1e-1f;
 
 static float3 grav_accel(float3 delta, float mass) {
-	float l = length(delta);
+	float l = fast_length(delta);
 	float d = l*l + Geps * Geps;
 
 	return (float)-G * mass / d / l * delta;

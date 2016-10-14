@@ -10,7 +10,8 @@
 
 using namespace compute;
 
-GPUBackend::GPUBackend(int count) : Backend(1, sizeof(cl_float3)) {
+GPUBackend::GPUBackend(int count, std::unique_ptr<ParticleGen> p_gen) :
+		Backend(count, std::move(p_gen), sizeof(cl_float3)) {
 	std::tie(this->ctx, this->cmd_q) = init_cl();
 
 	auto prog = create_program(GRAV_RK4_SRC, this->ctx);
@@ -39,7 +40,7 @@ void GPUBackend::init() {
 
 
 	this->vel = buffer(ctx, base * 4);
-	this->m = buffer(ctx, base);
+	this->mass = buffer(ctx, base);
 	this->active = buffer(ctx, sizeof(cl_uchar) * this->count);
 
 	this->x0 = buffer(ctx, base * 4);
@@ -55,17 +56,38 @@ void GPUBackend::init() {
 	this->set_base_kernel_args();
 }
 
+static cl_float3 conv(vec3 v) {
+	return (cl_float3) {v.x, v.y, v.z};
+}
+
 void GPUBackend::init_particles() {
-	cl_float3 pos = (cl_float3) {1.0f, 1.0f, 1.0f};
-	cl_float3 vel = (cl_float3) {0.0f, 0.1f, 0.0f};
-	cl_float size = 1.0f;
+	std::vector<cl_float3> pos_data(this->count);
+	std::vector<cl_float3> vel_data(this->count);
+	std::vector<float> size_data(this->count);
+	std::vector<float> mass_data(this->count);
+
+	this->p_gen->reset();
+
+	for(size_t i = 0; i < this->count; i++) {
+		vec3 p, v;
+		std::tie(p, v, size_data[i], mass_data[i]) =
+			this->p_gen->next_particle();
+
+		pos_data[i] = conv(p);
+		vel_data[i] = conv(v);
+	}
 
 	opengl_enqueue_acquire_buffer(this->pos, this->cmd_q);
 	opengl_enqueue_acquire_buffer(this->size, this->cmd_q);
 
-	this->cmd_q.enqueue_write_buffer(this->pos, 0, sizeof(pos), pos.s);
-	this->cmd_q.enqueue_write_buffer(this->vel, 0, sizeof(vel), vel.s);
-	this->cmd_q.enqueue_write_buffer(this->size, 0, sizeof(size), &size);
+	this->cmd_q.enqueue_write_buffer(this->pos, 0,
+		this->count * sizeof(cl_float3), &pos_data[0]);
+	this->cmd_q.enqueue_write_buffer(this->vel, 0,
+		this->count * sizeof(cl_float3), &vel_data[0]);
+	this->cmd_q.enqueue_write_buffer(this->size, 0,
+		this->count * sizeof(cl_float), &size_data[0]);
+	this->cmd_q.enqueue_write_buffer(this->mass, 0,
+		this->count * sizeof(cl_float), &mass_data[0]);
 
 	cl_uchar true_val = 1;
 	this->cmd_q.enqueue_fill_buffer(this->active, &true_val,
@@ -179,15 +201,6 @@ void GPUBackend::update(float dt) {
 	this->rk_step(dt, 3);
 	this->rk_step(dt, 4);
 	this->rk_end(dt);
-
-	cl_float3 pos;
-	cl_float3 vel;
-
-	this->cmd_q.enqueue_read_buffer(this->pos, 0,sizeof(pos), pos.s);
-	this->cmd_q.enqueue_read_buffer(this->vel, 0,sizeof(vel), vel.s);
-
-	std::cout << pos.x << "," << pos.y << "," << pos.z << std::endl;
-	std::cout << vel.x << "," << vel.y << "," << vel.z << std::endl;
 
 	opengl_enqueue_release_buffer(this->pos, this->cmd_q);
 	opengl_enqueue_release_buffer(this->size, this->cmd_q);

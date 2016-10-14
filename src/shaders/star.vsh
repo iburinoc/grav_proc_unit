@@ -20,7 +20,7 @@ void main() {
 
 	point_coord = vec2(DX[ind], DY[ind]);
 
-	cam_pos.xy -= point_coord * size * 0.5;
+	cam_pos.xy -= point_coord * size;
 	gl_Position = proj * cam_pos;
 }
 )"

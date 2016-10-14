@@ -2,12 +2,14 @@
 
 #include "../backend.hpp"
 #include "../buffer.hpp"
+#include "../particle_gen.hpp"
 #include "../options.hpp"
 
 #include "base.hpp"
 #include "gpu.hpp"
 
-Backend::Backend(int count, size_t stride) : count(count), stride(stride) {}
+Backend::Backend(int count, std::unique_ptr<ParticleGen> p_gen, size_t stride) :
+	count(count), p_gen(std::move(p_gen)), stride(stride) {}
 
 Backend::~Backend() {}
 
@@ -31,6 +33,8 @@ void Backend::set_vbos(GLuint pvbo, GLuint svbo) {
 }
 
 std::unique_ptr<Backend> get_backend_from_opts() {
-	return std::make_unique<GPUBackend>(options.particle_count);
+	auto p_gen = std::make_unique<ParticleGen>(options.seed);
+	return std::make_unique<GPUBackend>(options.particle_count,
+		std::move(p_gen));
 }
 
