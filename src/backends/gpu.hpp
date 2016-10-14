@@ -26,13 +26,19 @@ class GPUBackend : public Backend {
 	compute::buffer va;
 	compute::buffer aa;
 
-	void init_buffers();
+	virtual void init();
+
+	void init_particles();
+
+	void set_base_kernel_args();
+
+	void rk_step(float dt, int num);
+	void rk_end(float dt);
 
 public:
 	GPUBackend(int count);
 	virtual ~GPUBackend();
 
-	virtual void set_buffer(StarBuffer *sb);
 	virtual void update(float dt);
 };
 

@@ -7,8 +7,9 @@
 #include "program.hpp"
 #include "gl_util.hpp"
 
-StarBuffer::StarBuffer(GLProgram &prog, int count) :
-		count(count) {
+StarBuffer::StarBuffer(GLProgram &prog,
+		const std::shared_ptr<Backend> &bk) :
+		bk(bk) {
 	glGenVertexArrays(1, &this->vao);
 	glBindVertexArray(this->vao);
 
@@ -29,7 +30,7 @@ StarBuffer::StarBuffer(GLProgram &prog, int count) :
 
 	glBindBuffer(GL_ARRAY_BUFFER, this->pvbo);
 	glEnableVertexAttribArray(pos_loc);
-	glVertexAttribPointer(pos_loc, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat),
+	glVertexAttribPointer(pos_loc, 3, GL_FLOAT, GL_FALSE, bk->pos_stride(),
 		(GLvoid*) 0);
 
 	glVertexAttribDivisor(pos_loc, 1);
@@ -45,6 +46,8 @@ StarBuffer::StarBuffer(GLProgram &prog, int count) :
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+	bk->set_vbos(this->pvbo, this->svbo);
 }
 
 StarBuffer::~StarBuffer() {
@@ -54,32 +57,10 @@ StarBuffer::~StarBuffer() {
 	glDeleteBuffers(1, &this->ebo);
 }
 
-// Take position and size data as vec4's to ensure the array is packed
-void StarBuffer::set_vertices(std::vector<vec3> &pos,
-		std::vector<GLfloat> &size) {
-	glBindVertexArray(this->vao);
-
-	glBindBuffer(GL_ARRAY_BUFFER, this->pvbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * pos.size(), &pos[0],
-		GL_DYNAMIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, this->svbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * size.size(), &size[0],
-		GL_DYNAMIC_DRAW);
-
-	this->count = pos.size();
-
-	check_gl_error("Loading data", 5007);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-}
-
 void StarBuffer::draw() {
 	glBindVertexArray(this->vao);
-	//glDrawArrays(GL_POINTS, 0, 3);
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*) 0,
-		this->count);
+		bk->get_count());
 	check_gl_error("Drawing star buffer", 5006);
 
 	glBindVertexArray(0);

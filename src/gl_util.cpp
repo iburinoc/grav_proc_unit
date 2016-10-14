@@ -46,7 +46,7 @@ GLFWwindow *init_gl() {
 	check_gl_error("Getting version", 9001);
 
 
-	glfwSwapInterval(1);
+	glfwSwapInterval(0);
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glDisable(GL_BLEND);

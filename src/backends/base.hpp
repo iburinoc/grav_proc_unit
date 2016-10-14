@@ -1,19 +1,23 @@
 #pragma once
 
-#include "../buffer.hpp"
+#include "gpu/gl.hpp"
 
 class Backend {
 protected:
-	// Use raw pointer so we can bind it later on
-	StarBuffer *sb;
+	GLuint pvbo, svbo;
         int count;
+	size_t stride;
 
-	Backend(int count);
+	virtual void init();
+
+	Backend(int count, size_t stride);
 
 public:
 	virtual ~Backend();
 
-	virtual void set_buffer(StarBuffer *sb);
+	size_t pos_stride() const;
+	int get_count() const;
+	void set_vbos(GLuint pvbo, GLuint svbo);
 	virtual void update(float dt) = 0;
 };
 

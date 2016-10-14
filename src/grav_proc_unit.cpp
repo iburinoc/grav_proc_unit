@@ -12,6 +12,7 @@
 #include "gl_util.hpp"
 #include "log.hpp"
 #include "backend.hpp"
+#include "options.hpp"
 
 static std::unordered_map<GLFWwindow *, GravProcUnit *> callback_map;
 
@@ -34,8 +35,8 @@ static void static_resize_callback(GLFWwindow *window, int width, int height) {
 GravProcUnit::GravProcUnit(GLFWwindow* window, std::unique_ptr<Backend> bk) :
 		window(window),
 		prog(GLProgram(STAR_VERT_SHADER, STAR_FRAG_SHADER)),
-		buf(this->prog, 1),
 		backend(std::move(bk)),
+		buf(this->prog, this->backend),
 		uniforms(this->prog, {"proj", "view", }),
 		distance(5.f),
 		camera_orient(quat(1, 0, 0, 0)) {
@@ -43,8 +44,6 @@ GravProcUnit::GravProcUnit(GLFWwindow* window, std::unique_ptr<Backend> bk) :
 	callback_map[window] = this;
 	glfwSetKeyCallback(window, static_key_callback);
 	glfwSetFramebufferSizeCallback(window, static_resize_callback);
-
-	this->backend->set_buffer(&this->buf);
 
 	this->init_projection();
 }
@@ -65,6 +64,11 @@ void GravProcUnit::update() {
 	this->current_time = glfwGetTime();
 
 	double dt = this->current_time - prev_time;
+
+	if(options.debug) {
+		std::cerr << (1 / dt) << std::endl;
+	}
+
 	// avoid getting large dt on frame skips
 	dt = std::min(dt, 1/(double) 30);
 

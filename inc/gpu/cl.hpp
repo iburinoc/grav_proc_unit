@@ -2,6 +2,8 @@
 
 #include <utility>
 
+#include "gpu/gl.hpp"
+
 #include <boost/compute/core.hpp>
 #include <boost/compute/exception/opencl_error.hpp>
 #include <boost/compute/interop/opengl.hpp>

@@ -1,13 +1,17 @@
 #include <iostream>
 
-#include "../log.hpp"
+#include "gpu/gl.hpp"
 
 #include "../backend.hpp"
-#include "../gen_rand.hpp"
-#include "../options.hpp"
 #include "../consts.hpp"
+#include "../gen_rand.hpp"
+#include "../gl_util.hpp"
+#include "../log.hpp"
+#include "../options.hpp"
 
-BasicBackend::BasicBackend(int count) : Backend(count),
+#include "basic.hpp"
+
+BasicBackend::BasicBackend(int count) : Backend(count, sizeof(vec3)),
 		pos(this->count),
 		vel(this->count),
 		size(this->count),
@@ -107,6 +111,15 @@ void BasicBackend::update(float dt) {
 		vec3 net_acc = (this->aa[i] + acc) / 6.f;
 		this->vel[i] += dt * net_acc;
 	}
-	this->sb->set_vertices(this->pos, this->size);
+
+	glBindBuffer(GL_ARRAY_BUFFER, this->pvbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * pos.size(),
+		&this->pos[0], GL_DYNAMIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, this->svbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * size.size(),
+		&this->size[0], GL_DYNAMIC_DRAW);
+
+	check_gl_error("Loading data", 5007);
 }
 

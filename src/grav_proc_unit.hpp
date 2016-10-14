@@ -13,8 +13,8 @@
 class GravProcUnit {
 	GLFWwindow* window;
 	GLProgram prog;
+	std::shared_ptr<Backend> backend;
 	StarBuffer buf;
-	std::unique_ptr<Backend> backend;
 	Uniforms uniforms;
 
 	mat4 proj;
